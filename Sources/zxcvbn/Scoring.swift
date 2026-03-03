@@ -126,7 +126,7 @@ class Scoring {
         for k in 0..<n {
             for match in matchesByJ[k] {
                 if match.i > 0 {
-                    for (l, _) in optimal.m[match.i - 1] {
+                    for l in optimal.m[match.i - 1].keys.sorted() {
                         update(match: match, l: l + 1, optimal: optimal, password: password, excludeAdditive: excludeAdditive)
                     }
                 } else {
@@ -350,11 +350,13 @@ class Scoring {
         if !excludeAdditive {
             g += pow(Double(MIN_GUESSES_BEFORE_GROWING_SEQUENCE), Double(l - 1))
         }
-        for (competingL, competingG) in optimal.g[k] {
+        for competingL in optimal.g[k].keys.sorted() {
+            
             if competingL > l {
                 continue
             }
-            if competingG <= g {
+            if let competingG = optimal.g[k][competingL],
+               competingG <= g {
                 return
             }
         }
@@ -371,8 +373,9 @@ class Scoring {
         }
         for i in 1...k {
             let bruteForcematch = makeBruteforceMatch(i: i, j: k, password: password)
-            for (l, lastM) in optimal.m[i - 1] {
-                if lastM.pattern == "bruteforce" {
+            for l in optimal.m[i - 1].keys.sorted() {
+                if let lastM = optimal.m[i - 1][l],
+                   lastM.pattern == "bruteforce" {
                     continue
                 }
                 update(match: bruteForcematch, l: l + 1, optimal: optimal, password: password, excludeAdditive: excludeAdditive)
@@ -390,12 +393,14 @@ class Scoring {
     }
 
     func unwind(n: Int, optimal: Optimal) -> [Match] {
+        guard n >= 1 else { return [] }
         var optimalMatchSequence = [Match]()
         var k = n - 1
         var l: Int? = nil
         var g = Double.infinity
-        for (candidateL, candidateG) in optimal.g[k] {
-            if candidateG < g {
+        for candidateL in optimal.g[k].keys.sorted() {
+            if let candidateG = optimal.g[k][candidateL],
+               candidateG < g {
                 l = candidateL
                 g = candidateG
             }

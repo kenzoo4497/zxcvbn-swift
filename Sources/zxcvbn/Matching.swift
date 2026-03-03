@@ -54,13 +54,14 @@ class Matching {
         let length = password.count
         let passwordLower = password.lowercased()
         
-        for (dictionaryName, rankedDict) in rankedDictionaries {
+        for dictionaryName in rankedDictionaries.keys.sorted() {
+            let rankedDict = rankedDictionaries[dictionaryName]
             for i in 0..<length {
                 for j in i..<length {
                     let range = passwordLower.index(passwordLower.startIndex, offsetBy: i)...passwordLower.index(passwordLower.startIndex, offsetBy: j)
                     let word = String(passwordLower[range])
                     let token = String(password[range])
-                    if let rank = rankedDict[word] {
+                    if let rank = rankedDict?[word] {
                         let match = Match(i: i, j: j, token: token)
                         match.pattern = "dictionary"
                         match.matchedWord = word
@@ -226,7 +227,8 @@ class Matching {
     func spatialMatch(password: String, graphs: [String: [String: [String?]]]? = nil, rankedDictionaries: [String: [String: Int]]) -> [Match] {
         let graphs = graphs ?? self.graphs
         var matches: [Match] = []
-        for (graphName, graph) in graphs {
+        for graphName in graphs.keys.sorted() {
+            let graph = graphs[graphName] ?? [:]
             let spatialMatchHelper = matchingHelpers.spatialMatchHelper(password: password, graph: graph, graphName: graphName)
             matches.append(contentsOf: spatialMatchHelper)
         }

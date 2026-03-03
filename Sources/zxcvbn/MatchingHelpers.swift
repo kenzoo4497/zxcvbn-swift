@@ -103,7 +103,7 @@ class MatchingHelpers {
     }
 
     func enumerateL33tSubs(table: [Character: [Character]]) -> [[Character: Character]] {
-        let keys = Array(table.keys)
+        let keys = Array(table.keys).sorted()
         let subs: [[(Character, Character)]] = [[]]
 
         let subsWithAssocs = generateSubstitutions(keys: keys, subs: subs, table: table)
